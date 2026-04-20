@@ -85,4 +85,5 @@ export const StoreProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useStore = () => useContext(StoreContext);
