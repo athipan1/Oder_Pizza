@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { menuItems } from '../data/menuItems';
 import { useStore } from '../context/StoreContext';
 import { Plus, Search } from 'lucide-react';
 
 const Home = () => {
-  const { addToCart } = useStore();
+  const { products, addToCart } = useStore();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -15,7 +14,7 @@ const Home = () => {
     { id: 'drinks', name: 'เครื่องดื่ม' },
   ];
 
-  const filteredItems = menuItems.filter(item => {
+  const filteredItems = products.filter(item => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;

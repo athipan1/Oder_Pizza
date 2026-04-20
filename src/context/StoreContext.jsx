@@ -1,8 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { menuItems as initialMenuItems } from '../data/menuItems';
 
 const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
+  const [products, setProducts] = useState(() => {
+    const savedProducts = localStorage.getItem('products');
+    return savedProducts ? JSON.parse(savedProducts) : initialMenuItems;
+  });
+
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem('cart');
     return savedCart ? JSON.parse(savedCart) : [];
@@ -12,6 +18,10 @@ export const StoreProvider = ({ children }) => {
     const savedOrders = localStorage.getItem('orders');
     return savedOrders ? JSON.parse(savedOrders) : [];
   });
+
+  useEffect(() => {
+    localStorage.setItem('products', JSON.stringify(products));
+  }, [products]);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -69,8 +79,31 @@ export const StoreProvider = ({ children }) => {
     ));
   };
 
+  const addProduct = (product) => {
+    const newProduct = {
+      ...product,
+      id: Date.now(),
+      price: Number(product.price)
+    };
+    setProducts(prev => [...prev, newProduct]);
+  };
+
+  const updateProduct = (updatedProduct) => {
+    setProducts(prev => prev.map(p =>
+      p.id === updatedProduct.id ? { ...updatedProduct, price: Number(updatedProduct.price) } : p
+    ));
+  };
+
+  const deleteProduct = (productId) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+  };
+
   return (
     <StoreContext.Provider value={{
+      products,
+      addProduct,
+      updateProduct,
+      deleteProduct,
       cart,
       addToCart,
       removeFromCart,
