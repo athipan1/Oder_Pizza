@@ -19,10 +19,11 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Note: For actual deployment via GitHub Actions, you would need to set
-      # VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID in GitHub Secrets.
-      # However, Vercel's GitHub Integration usually handles this automatically on push.
-      # This workflow ensures your code builds correctly before Vercel starts its deployment.
-
-      - name: Verify Build
-        run: echo "Build verified successfully!"
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: ${{ (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && '--prod' || '' }}
+          working-directory: ./
