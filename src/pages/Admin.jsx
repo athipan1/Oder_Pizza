@@ -10,12 +10,33 @@ import {
   Phone,
   MapPin,
   Eye,
-  X
+  X,
+  Plus,
+  Pencil,
+  Trash2,
+  Package
 } from 'lucide-react';
 
 const Admin = () => {
-  const { orders, updateOrderStatus } = useStore();
+  const {
+    orders,
+    updateOrderStatus,
+    products,
+    addProduct,
+    updateProduct,
+    deleteProduct
+  } = useStore();
+  const [activeTab, setActiveTab] = useState('orders'); // orders, menu
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    category: 'pizza',
+    image: ''
+  });
 
   const statusMap = {
     pending: { label: 'รอชำระเงิน', color: 'bg-yellow-100 text-yellow-700', icon: <Clock size={16} /> },
@@ -35,19 +56,76 @@ const Admin = () => {
     );
   };
 
+  const handleOpenProductModal = (product = null) => {
+    if (product) {
+      setEditingProduct(product);
+      setProductForm(product);
+    } else {
+      setEditingProduct(null);
+      setProductForm({
+        name: '',
+        description: '',
+        price: '',
+        category: 'pizza',
+        image: ''
+      });
+    }
+    setIsProductModalOpen(true);
+  };
+
+  const handleProductSubmit = (e) => {
+    e.preventDefault();
+    if (editingProduct) {
+      updateProduct(productForm);
+    } else {
+      addProduct(productForm);
+    }
+    setIsProductModalOpen(false);
+  };
+
+  const handleDeleteProduct = (id) => {
+    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเมนูนี้?')) {
+      deleteProduct(id);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <ClipboardList className="text-primary" />
-          รายการออเดอร์ทั้งหมด
-        </h1>
-        <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-sm font-bold">
-          {orders.length} ออเดอร์
-        </span>
+      {/* Tabs */}
+      <div className="flex gap-2 p-1 bg-gray-100 rounded-2xl">
+        <button
+          onClick={() => setActiveTab('orders')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
+            activeTab === 'orders' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <ClipboardList size={20} />
+          ออเดอร์
+        </button>
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${
+            activeTab === 'menu' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Package size={20} />
+          จัดการเมนู
+        </button>
       </div>
 
-      <div className="space-y-4">
+      {activeTab === 'orders' ? (
+        <>
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <ClipboardList className="text-primary" />
+              รายการออเดอร์ทั้งหมด
+            </h1>
+            <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-lg text-sm font-bold">
+              {orders.length} ออเดอร์
+            </span>
+          </div>
+
+          <div className="space-y-4">
         {orders.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
             <p className="text-gray-400 font-medium">ยังไม่มีรายการสั่งซื้อเข้ามา</p>
@@ -83,7 +161,137 @@ const Admin = () => {
             </div>
           ))
         )}
-      </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+              <Package className="text-primary" />
+              จัดการรายการอาหาร
+            </h1>
+            <button
+              onClick={() => handleOpenProductModal()}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus size={20} />
+              เพิ่มเมนู
+            </button>
+          </div>
+
+          <div className="grid gap-4">
+            {products.map(product => (
+              <div key={product.id} className="card p-4 flex gap-4 items-center">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-16 h-16 object-cover rounded-xl shrink-0"
+                />
+                <div className="flex-grow">
+                  <h3 className="font-bold text-gray-800">{product.name}</h3>
+                  <p className="text-primary font-bold">฿{product.price}</p>
+                  <p className="text-xs text-gray-400 capitalize">{product.category}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleOpenProductModal(product)}
+                    className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                  >
+                    <Pencil size={20} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProduct(product.id)}
+                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Product Modal */}
+      {isProductModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                {editingProduct ? 'แก้ไขเมนู' : 'เพิ่มเมนูใหม่'}
+              </h2>
+              <button onClick={() => setIsProductModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleProductSubmit} className="p-6 space-y-4">
+              <div className="space-y-1">
+                <label htmlFor="product-name" className="text-sm font-medium text-gray-700">ชื่อเมนู</label>
+                <input
+                  id="product-name"
+                  required
+                  type="text"
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:outline-none"
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label htmlFor="product-price" className="text-sm font-medium text-gray-700">ราคา (บาท)</label>
+                  <input
+                    id="product-price"
+                    required
+                    type="number"
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:outline-none"
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="product-category" className="text-sm font-medium text-gray-700">หมวดหมู่</label>
+                  <select
+                    id="product-category"
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:outline-none"
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                  >
+                    <option value="pizza">พิซซ่า</option>
+                    <option value="somtum">ส้มตำ/ไก่ย่าง</option>
+                    <option value="drinks">เครื่องดื่ม</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label htmlFor="product-description" className="text-sm font-medium text-gray-700">คำอธิบาย</label>
+                <textarea
+                  id="product-description"
+                  rows="2"
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:outline-none"
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <label htmlFor="product-image" className="text-sm font-medium text-gray-700">URL รูปภาพ</label>
+                <input
+                  id="product-image"
+                  required
+                  type="url"
+                  className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:outline-none"
+                  value={productForm.image}
+                  onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                />
+              </div>
+              <div className="pt-4">
+                <button type="submit" className="w-full btn-primary py-3 text-lg">
+                  {editingProduct ? 'บันทึกการแก้ไข' : 'เพิ่มเมนู'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Order Details Modal */}
       {selectedOrder && (
