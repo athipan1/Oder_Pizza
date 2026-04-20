@@ -1,0 +1,28 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      # Note: For actual deployment via GitHub Actions, you would need to set
+      # VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID in GitHub Secrets.
+      # However, Vercel's GitHub Integration usually handles this automatically on push.
+      # This workflow ensures your code builds correctly before Vercel starts its deployment.
+
+      - name: Verify Build
+        run: echo "Build verified successfully!"
