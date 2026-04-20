@@ -1,6 +1,23 @@
-# React + Vite
+# My Pizza App 🍕
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy to Vercel](https://github.com/stackblitz-labs/sb1-nctq6u/actions/workflows/deploy.yml/badge.svg)](https://github.com/stackblitz-labs/sb1-nctq6u/actions/workflows/deploy.yml)
+
+แอปพลิเคชันสั่งอาหาร (Pizza) ที่พัฒนาด้วย React และ Vite รองรับการแสดงผลบนมือถือ และระบบจัดการหลังบ้านแบบง่าย
+
+## 🚀 Live Demo
+
+คุณสามารถเข้าชมเว็บไซต์ที่ Deploy แล้วได้ที่นี่:
+👉 **[View Live Site on Vercel](https://my-pizza-app-zeta.vercel.app)** (กรุณาอัปเดตลิงก์หากมีการเปลี่ยนแปลง)
+
+---
+
+## ฟีเจอร์เด่น
+*   🍕 เลือกสั่งพิซซ่าและเมนูต่างๆ
+*   🛒 ระบบตะกร้าสินค้า
+*   📱 รองรับ Responsive (Mobile-first)
+*   👩‍💼 ระบบ Admin สำหรับจัดการออเดอร์ (ผ่าน LocalStorage)
+
+## การติดตั้งและใช้งาน
 
 Currently, two official plugins are available:
 
